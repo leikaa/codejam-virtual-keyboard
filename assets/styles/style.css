@@ -24,6 +24,26 @@ body {
 .keyboard {
     width: 700px;
     height: 240px;
-    margin: 10px auto 0;
-    background-color: lightyellow;
+    margin: 15px auto 0;
+}
+
+.keyboard__row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.keyboard__row:not(:first-of-type) {
+    margin-top: 10px;
+}
+
+.keyboard__key {
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    background-color: #3d3d3d;
+    text-align: center;
+    line-height: 40px;
+    color: #fff;
+    font-size: 16px;
 }
