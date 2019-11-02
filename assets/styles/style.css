@@ -1,0 +1,29 @@
+body {
+    background-color: #ddd;
+    font-size: 14px;
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+.wrapper {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px 0;
+    background-color: #fff;
+    width: 100vw;
+    height: calc(100vh - 20px);
+}
+
+.textarea {
+    width: 700px;
+    height: 100px;
+    display: block;
+    margin: 0 auto;
+}
+
+.keyboard {
+    width: 700px;
+    height: 240px;
+    margin: 10px auto 0;
+    background-color: lightyellow;
+}
