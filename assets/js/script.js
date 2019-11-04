@@ -196,7 +196,6 @@ window.onload = function () {
 
             registerChange(
                 () => {
-                    capsLockBtn === true ? false : true;
                     registerChangeInnerFunction();
                 },
                 "CapsLock"
@@ -291,8 +290,8 @@ window.onload = function () {
             if (pressedBtnKeyCode === keyCode && (keyCode === 'ShiftLeft' || keyCode === 'ShiftRight') && !shiftBtn) {
                 shiftBtn = true;
             }
-            if (pressedBtnKeyCode === keyCode && keyCode === 'CapsLock' && !capsLockBtn) {
-                capsLockBtn = true;
+            if (pressedBtnKeyCode === keyCode && keyCode === 'CapsLock') {
+                capsLockBtn === true ? capsLockBtn = false : capsLockBtn = true;
             }
         });
     });
