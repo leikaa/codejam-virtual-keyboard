@@ -57,11 +57,17 @@ body {
 
 .keyboard__key:hover {
     cursor: pointer;
-    background-color: #a52a2a;
 }
 
 .active {
     background-color: #a52a2a;
+    border-radius: 50%;
+    transition: all 300ms ease-in-out;
+}
+
+.inactive {
+    border-radius: initial;
+    transition: all 300ms ease-in-out;
 }
 
 .medium-length {

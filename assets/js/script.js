@@ -79,7 +79,15 @@ window.onload = function () {
             };
 
             keyboardButton.setAttribute('data-key', value[0]);
-            fillKeyText(RU);
+            if (localStorage.getItem('language') && localStorage.getItem('language') === 'ru') {
+                fillKeyText(RU);
+            } else if (localStorage.getItem('language') && localStorage.getItem('language') === 'en') {
+                fillKeyText(EN);
+            } else {
+                fillKeyText(RU);
+            }
+
+            //fillKeyText(RU);
             document.querySelector(`.keyboard__row-${i}`).append(keyboardButton);
 
             // set change language option
@@ -106,7 +114,7 @@ window.onload = function () {
 
             languageChange(
                 () => {
-                    if(keyboardButton.getAttribute('data-value') === value[1] || keyboardButton.getAttribute('data-value') === value[3]) {
+                    if (keyboardButton.getAttribute('data-value') === value[1] || keyboardButton.getAttribute('data-value') === value[3]) {
                         keyboardButton.getAttribute('data-value') === value[1] ? fillKeyText(3) : fillKeyText(1);
                     } else if (keyboardButton.getAttribute('data-value') === value[2] || keyboardButton.getAttribute('data-value') === value[4]) {
                         keyboardButton.getAttribute('data-value') === value[2] ? fillKeyText(4) : fillKeyText(2);
@@ -144,6 +152,7 @@ window.onload = function () {
                         } else {
                             language = 'en'
                         }
+                        localStorage.setItem('language', language);
                     }
                     if (unPressedBtnKeyCode === 'ShiftLeft' || unPressedBtnKeyCode === 'ShiftRight') {
                         // return base lang settings if shift/lock was pressed
@@ -179,11 +188,11 @@ window.onload = function () {
             registerChange(
                 () => {
                     if (!shiftBtn) {
-                        RU = 2;
-                        EN = 4;
                         if (language === 'ru') {
+                            RU = 2;
                             keyboardButton.getAttribute('data-value') === value[1] ? fillKeyText(RU) : fillKeyText(1);
                         } else if (language === 'en') {
+                            EN = 4;
                             keyboardButton.getAttribute('data-value') === value[3] ? fillKeyText(EN) : fillKeyText(3);
                         }
                     }
@@ -198,7 +207,6 @@ window.onload = function () {
                     if (language === 'ru') {
                         RU = 2;
                         keyboardButton.getAttribute('data-value') === value[1] ? fillKeyText(RU) : fillKeyText(1);
-                        console.log(RU);
                     } else if (language === 'en') {
                         EN = 4;
                         keyboardButton.getAttribute('data-value') === value[3] ? fillKeyText(EN) : fillKeyText(3);
@@ -229,24 +237,35 @@ window.onload = function () {
     };
 
     document.querySelectorAll('.keyboard__key').forEach(function (value) {
-        value.addEventListener('click', () => {
+        value.addEventListener('click', (e) => {
             document.querySelector('.textarea').value += value.getAttribute('data-value');
-            let pressedBtnKeyCode = value.getAttribute('data-key');
+            let keyCode = value.getAttribute('data-key');
+            let clickedBtnKeyCode = e.target;
 
-            if (pressedBtnKeyCode === 'Backspace') {
+            if (keyCode === 'Backspace') {
                 backspaceFn();
             }
-            if (pressedBtnKeyCode === 'Tab') {
+            if (keyCode === 'Tab') {
                 tabFn();
             }
-            if (pressedBtnKeyCode === 'Space') {
+            if (keyCode === 'Space') {
                 spaceFn();
             }
-            if (pressedBtnKeyCode === 'Enter') {
+            if (keyCode === 'Enter') {
                 enterFn();
             }
-            if (pressedBtnKeyCode === 'Delete') {
+            if (keyCode === 'Delete') {
                 deleteFn();
+            }
+
+            if (clickedBtnKeyCode.getAttribute('data-key') === keyCode) {
+                value.classList.remove('inactive');
+                value.classList.add('active');
+
+                setTimeout(function() {
+                    value.classList.remove('active');
+                    value.classList.add('inactive');
+                }, 800);
             }
         });
     });
@@ -260,6 +279,7 @@ window.onload = function () {
         document.querySelectorAll('.keyboard__key').forEach((value) => {
             let keyCode = value.getAttribute('data-key');
             if (pressedBtnKeyCode === keyCode) {
+                value.classList.remove('inactive');
                 value.classList.add('active');
                 document.querySelector('.textarea').value += value.getAttribute('data-value');
             }
@@ -287,9 +307,14 @@ window.onload = function () {
         });
     });
 
-    document.addEventListener('keyup', () => {
+    document.addEventListener('keyup', (e) => {
+        let pressedBtnKeyCode = e.code;
         document.querySelectorAll('.keyboard__key').forEach((value) => {
-            value.classList.remove('active');
+            let keyCode = value.getAttribute('data-key');
+            if (pressedBtnKeyCode === keyCode) {
+                value.classList.remove('active');
+                value.classList.add('inactive');
+            }
         });
     });
 };
