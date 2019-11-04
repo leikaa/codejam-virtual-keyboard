@@ -78,6 +78,7 @@ window.onload = function () {
                 }
             };
 
+            // get language or set default if storage is empty
             keyboardButton.setAttribute('data-key', value[0]);
             if (localStorage.getItem('language') && localStorage.getItem('language') === 'ru') {
                 fillKeyText(RU);
@@ -87,13 +88,9 @@ window.onload = function () {
                 fillKeyText(RU);
             }
 
-            //fillKeyText(RU);
             document.querySelector(`.keyboard__row-${i}`).append(keyboardButton);
 
-            // set change language option
-            let languageChange = function (func, ...codes) {
-                let pressed = new Set();
-
+            let keyDownFnc = function (pressed, codes, func) {
                 document.addEventListener('keydown', function(e) {
                     pressed.add(e.code);
                     // check if all buttons were pressed
@@ -106,6 +103,12 @@ window.onload = function () {
                     pressed.clear();
                     func();
                 });
+            };
+
+            // set change language option
+            let languageChange = function (func, ...codes) {
+                let pressed = new Set();
+                keyDownFnc(pressed, codes, func);
 
                 document.addEventListener('keyup', (e) => {
                     pressed.delete(e.code);
@@ -114,10 +117,11 @@ window.onload = function () {
 
             languageChange(
                 () => {
-                    if (keyboardButton.getAttribute('data-value') === value[1] || keyboardButton.getAttribute('data-value') === value[3]) {
-                        keyboardButton.getAttribute('data-value') === value[1] ? fillKeyText(3) : fillKeyText(1);
-                    } else if (keyboardButton.getAttribute('data-value') === value[2] || keyboardButton.getAttribute('data-value') === value[4]) {
-                        keyboardButton.getAttribute('data-value') === value[2] ? fillKeyText(4) : fillKeyText(2);
+                    let dataValue = keyboardButton.getAttribute('data-value');
+                    if (dataValue === value[1] || dataValue === value[3]) {
+                        dataValue === value[1] ? fillKeyText(3) : fillKeyText(1);
+                    } else if (dataValue === value[2] || dataValue === value[4]) {
+                        dataValue === value[2] ? fillKeyText(4) : fillKeyText(2);
                     }
                 },
                 "AltLeft",
@@ -127,19 +131,7 @@ window.onload = function () {
             // set change register option
             let registerChange = function (func, ...codes) {
                 let pressed = new Set();
-
-                document.addEventListener('keydown', function(e) {
-                    pressed.add(e.code);
-                    // check if all buttons were pressed
-                    for (let code of codes) {
-                        if (!pressed.has(code)) {
-                            return;
-                        }
-                    }
-                    // to prevent key sticking - reset all key statuses
-                    pressed.clear();
-                    func();
-                });
+                keyDownFnc(pressed, codes, func);
 
                 document.addEventListener('keyup', (e) => {
                     let unPressedBtnKeyCode = e.code;
@@ -155,9 +147,13 @@ window.onload = function () {
                         localStorage.setItem('language', language);
                     }
                     if (unPressedBtnKeyCode === 'ShiftLeft' || unPressedBtnKeyCode === 'ShiftRight') {
-                        // return base lang settings if shift/lock was pressed
-                        RU = 1;
-                        EN = 3;
+                        // return language settings if shift/lock was pressed
+                        RU = 2;
+                        EN = 4;
+                        if (!capsLockBtn) {
+                            RU = 1;
+                            EN = 3;
+                        }
                         shiftBtn = false;
 
                         if (language === 'ru') {
@@ -170,16 +166,20 @@ window.onload = function () {
                 });
             };
 
+            let registerChangeInnerFunction = function () {
+                if (language === 'ru') {
+                    RU = 2;
+                    keyboardButton.getAttribute('data-value') === value[1] ? fillKeyText(RU) : fillKeyText(1);
+                } else if (language === 'en') {
+                    EN = 4;
+                    keyboardButton.getAttribute('data-value') === value[3] ? fillKeyText(EN) : fillKeyText(3);
+                }
+            };
+
             registerChange(
                 () => {
                     if (!shiftBtn) {
-                        if (language === 'ru') {
-                            RU = 2;
-                            keyboardButton.getAttribute('data-value') === value[1] ? fillKeyText(RU) : fillKeyText(1);
-                        } else if (language === 'en') {
-                            EN = 4;
-                            keyboardButton.getAttribute('data-value') === value[3] ? fillKeyText(EN) : fillKeyText(3);
-                        }
+                        registerChangeInnerFunction();
                     }
                 },
                 "ShiftLeft"
@@ -188,13 +188,7 @@ window.onload = function () {
             registerChange(
                 () => {
                     if (!shiftBtn) {
-                        if (language === 'ru') {
-                            RU = 2;
-                            keyboardButton.getAttribute('data-value') === value[1] ? fillKeyText(RU) : fillKeyText(1);
-                        } else if (language === 'en') {
-                            EN = 4;
-                            keyboardButton.getAttribute('data-value') === value[3] ? fillKeyText(EN) : fillKeyText(3);
-                        }
+                        registerChangeInnerFunction();
                     }
                 },
                 "ShiftRight"
@@ -203,14 +197,7 @@ window.onload = function () {
             registerChange(
                 () => {
                     capsLockBtn === true ? false : true;
-                    console.log(RU);
-                    if (language === 'ru') {
-                        RU = 2;
-                        keyboardButton.getAttribute('data-value') === value[1] ? fillKeyText(RU) : fillKeyText(1);
-                    } else if (language === 'en') {
-                        EN = 4;
-                        keyboardButton.getAttribute('data-value') === value[3] ? fillKeyText(EN) : fillKeyText(3);
-                    }
+                    registerChangeInnerFunction();
                 },
                 "CapsLock"
             );
@@ -258,6 +245,7 @@ window.onload = function () {
                 deleteFn();
             }
 
+            // pseudo - animation block
             if (clickedBtnKeyCode.getAttribute('data-key') === keyCode) {
                 value.classList.remove('inactive');
                 value.classList.add('active');
@@ -265,7 +253,7 @@ window.onload = function () {
                 setTimeout(function() {
                     value.classList.remove('active');
                     value.classList.add('inactive');
-                }, 800);
+                }, 300);
             }
         });
     });
@@ -278,6 +266,8 @@ window.onload = function () {
 
         document.querySelectorAll('.keyboard__key').forEach((value) => {
             let keyCode = value.getAttribute('data-key');
+
+            // pseudo animation + input block
             if (pressedBtnKeyCode === keyCode) {
                 value.classList.remove('inactive');
                 value.classList.add('active');
